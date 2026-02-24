@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Session {{ session.id | string | truncate(8, True, '') }} — Copilot Chat Logger{% endblock %}
+{% block content %}
+
+<a href="/dashboard/">&larr; Back to sessions</a>
+
+<div style="display: grid; grid-template-columns: 1fr 280px; gap: 2rem; margin-top: 1rem;">
+
+    <!-- Conversation -->
+    <div>
+        <h3>Conversation</h3>
+        {% for p in prompts %}
+        <div>
+            <div class="chat-label">👤 {{ session.developer }}</div>
+            <div class="chat-bubble chat-user">{{ p.prompt_text }}</div>
+        </div>
+        <div>
+            <div class="chat-label">🤖 Copilot{% if p.duration_ms %} · {{ (p.duration_ms / 1000) | round(1) }}s{% endif %}</div>
+            <div class="chat-bubble chat-assistant">{{ p.response_text or '(no response captured)' }}</div>
+        </div>
+        {% else %}
+        <p style="color: var(--pico-muted-color);">No prompts in this session.</p>
+        {% endfor %}
+
+        <!-- Tool calls -->
+        {% if tools %}
+        <h4 style="margin-top: 2rem;">Tool Calls</h4>
+        <figure>
+        <table>
+            <thead>
+                <tr><th>Time</th><th>Phase</th><th>Tool</th><th>Permission</th></tr>
+            </thead>
+            <tbody>
+                {% for t in tools %}
+                <tr>
+                    <td>{{ t.timestamp.strftime('%H:%M:%S') }}</td>
+                    <td>{{ t.phase }}</td>
+                    <td><code>{{ t.tool_name }}</code></td>
+                    <td>{{ t.permission or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </figure>
+        {% endif %}
+
+        <!-- Errors -->
+        {% if errors %}
+        <h4 style="margin-top: 2rem;">Errors</h4>
+        <figure>
+        <table>
+            <thead>
+                <tr><th>Time</th><th>Context</th><th>Message</th><th>Recoverable</th></tr>
+            </thead>
+            <tbody>
+                {% for e in errors %}
+                <tr>
+                    <td>{{ e.timestamp.strftime('%H:%M:%S') }}</td>
+                    <td><code>{{ e.error_context or '—' }}</code></td>
+                    <td>{{ e.error_message }}</td>
+                    <td>{{ '✓' if e.recoverable else '✗' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </figure>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <aside>
+        <h4>Session Info</h4>
+        <dl class="meta-sidebar">
+            <dt>Session ID</dt>
+            <dd><code>{{ session.id | string | truncate(20, True, '…') }}</code></dd>
+            <dt>Developer</dt>
+            <dd>{{ session.developer }}</dd>
+            <dt>Model</dt>
+            <dd>{{ session.model or '—' }}</dd>
+            <dt>Working Dir</dt>
+            <dd><code>{{ session.cwd or '—' }}</code></dd>
+            <dt>Source</dt>
+            <dd>{{ session.source or '—' }}</dd>
+            <dt>Started</dt>
+            <dd>{{ session.started_at.strftime('%Y-%m-%d %H:%M:%S') }}</dd>
+            <dt>Ended</dt>
+            <dd>{{ session.ended_at.strftime('%Y-%m-%d %H:%M:%S') if session.ended_at else 'active' }}</dd>
+            <dt>End Reason</dt>
+            <dd>
+                {% if session.end_reason == 'complete' or session.end_reason == 'user_exit' %}
+                    <span class="badge badge-complete">{{ session.end_reason }}</span>
+                {% elif session.end_reason == 'error' %}
+                    <span class="badge badge-error">error</span>
+                {% elif session.end_reason %}
+                    <span class="badge badge-abort">{{ session.end_reason }}</span>
+                {% else %}
+                    <span class="badge badge-active">active</span>
+                {% endif %}
+            </dd>
+            <dt>Prompts</dt>
+            <dd>{{ prompts | length }}</dd>
+            <dt>Tool Calls</dt>
+            <dd>{{ tools | length }}</dd>
+            <dt>Errors</dt>
+            <dd>{{ errors | length }}</dd>
+        </dl>
+    </aside>
+
+</div>
+
+{% endblock %}

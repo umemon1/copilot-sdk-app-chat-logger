@@ -1,0 +1,8 @@
+# CLI chat app
+github-copilot-sdk
+asyncpg
+
+# Dashboard
+fastapi
+uvicorn[standard]
+jinja2

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Copilot Chat Logger{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        :root {
+            --pico-font-size: 15px;
+        }
+        body { padding-top: 1rem; }
+        nav { margin-bottom: 1.5rem; }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--pico-card-background-color);
+            border: 1px solid var(--pico-muted-border-color);
+            border-radius: var(--pico-border-radius);
+            padding: 1rem 1.25rem;
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--pico-primary);
+            line-height: 1.2;
+        }
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: var(--pico-muted-color);
+        }
+        .prompt-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.9em;
+            color: var(--pico-muted-color);
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-complete  { background: #d3f9d8; color: #087f5b; }
+        .badge-error     { background: #ffe3e3; color: #c92a2a; }
+        .badge-abort     { background: #fff3bf; color: #e67700; }
+        .badge-active    { background: #d0ebff; color: #1971c2; }
+        .pagination { display: flex; gap: 0.5rem; justify-content: center; }
+        .pagination a { padding: 0.4rem 0.8rem; }
+        table { font-size: 0.92em; }
+        .chat-bubble {
+            padding: 0.8rem 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+            max-width: 85%;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .chat-user {
+            background: var(--pico-primary-focus);
+            margin-left: auto;
+        }
+        .chat-assistant {
+            background: var(--pico-card-background-color);
+            border: 1px solid var(--pico-muted-border-color);
+        }
+        .chat-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: var(--pico-muted-color);
+        }
+        .meta-sidebar dt { font-weight: 600; font-size: 0.85rem; }
+        .meta-sidebar dd { margin-bottom: 0.75rem; margin-left: 0; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <nav>
+            <ul>
+                <li><strong>🤖 Copilot Chat Logger</strong></li>
+            </ul>
+            <ul>
+                <li><a href="/dashboard/">Sessions</a></li>
+            </ul>
+        </nav>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

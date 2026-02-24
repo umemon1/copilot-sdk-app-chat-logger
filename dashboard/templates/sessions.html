@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Sessions — Copilot Chat Logger{% endblock %}
+{% block content %}
+
+<!-- Stats -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="value">{{ stats.total_sessions }}</div>
+        <div class="label">Total Sessions</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ stats.unique_devs }}</div>
+        <div class="label">Developers</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ stats.total_prompts }}</div>
+        <div class="label">Total Prompts</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ (stats.avg_duration_ms / 1000) | round(1) }}s</div>
+        <div class="label">Avg Response</div>
+    </div>
+</div>
+
+<!-- Filter -->
+<form method="get" action="/dashboard/" role="group" style="margin-bottom: 1.5rem;">
+    <select name="developer" aria-label="Filter by developer">
+        <option value="">All developers</option>
+        {% for dev in developers %}
+        <option value="{{ dev }}" {% if dev == selected_developer %}selected{% endif %}>{{ dev }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+<!-- Sessions Table -->
+<figure>
+<table>
+    <thead>
+        <tr>
+            <th>Developer</th>
+            <th>Started</th>
+            <th>Prompts</th>
+            <th>First Prompt</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in sessions %}
+        <tr>
+            <td><strong>{{ s.developer }}</strong></td>
+            <td>{{ s.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ s.prompt_count }}</td>
+            <td class="prompt-preview">{{ s.first_prompt or '—' }}</td>
+            <td>
+                {% if s.end_reason == 'complete' or s.end_reason == 'user_exit' %}
+                    <span class="badge badge-complete">{{ s.end_reason }}</span>
+                {% elif s.end_reason == 'error' %}
+                    <span class="badge badge-error">error</span>
+                {% elif s.end_reason == 'abort' or s.end_reason == 'timeout' %}
+                    <span class="badge badge-abort">{{ s.end_reason }}</span>
+                {% elif s.end_reason is none %}
+                    <span class="badge badge-active">active</span>
+                {% else %}
+                    <span class="badge">{{ s.end_reason }}</span>
+                {% endif %}
+            </td>
+            <td><a href="/dashboard/sessions/{{ s.id }}">View</a></td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--pico-muted-color);">
+                No sessions logged yet. Run <code>python chat.py</code> to start logging.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</figure>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% if page > 1 %}
+    <a href="/dashboard/?page={{ page - 1 }}{% if selected_developer %}&developer={{ selected_developer }}{% endif %}" role="button" class="outline">← Prev</a>
+    {% endif %}
+    <span style="padding: 0.4rem 0.8rem;">Page {{ page }} of {{ total_pages }}</span>
+    {% if page < total_pages %}
+    <a href="/dashboard/?page={{ page + 1 }}{% if selected_developer %}&developer={{ selected_developer }}{% endif %}" role="button" class="outline">Next →</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
